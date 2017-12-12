@@ -32,7 +32,7 @@ public:
   MatrixXd Xsig_pred_;
 
   ///* time when the state is true, in us
-  long long time_us_;
+  long long previous_timestamp_;
 
   ///* Process noise standard deviation longitudinal acceleration in m/s^2
   double std_a_;
@@ -60,12 +60,27 @@ public:
 
   ///* State dimension
   int n_x_;
+    
+    ///* Laser measurement dimensions
+    int n_z_laser_;
+    
+    ///* Radar measurement dimensions
+    int n_z_radar_;
 
   ///* Augmented state dimension
   int n_aug_;
 
   ///* Sigma point spreading parameter
   double lambda_;
+    
+    ///* Sigma point spreading parameter for augmented state
+    double lambda_aug_;
+    
+    ///* NIS for laser measurements
+    double NIS_laser_;
+    
+    ///* NIS for radar measurements
+    double NIS_radar_;
 
 
   /**
@@ -102,6 +117,22 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+    
+    void AugmentedSigmaPoints(MatrixXd* Xsig_out);
+    
+    void SigmaPointPrediction(MatrixXd Xsig_aug, double delta_t);
+    
+    void PredictMeanAndCovariance();
+    
+    void PredictRadarMeasurement(MatrixXd* Zsig_out, VectorXd* z_out, MatrixXd* S_out);
+    
+    void PredictLidarMeasurement(MatrixXd* Zsig_out, VectorXd* z_out, MatrixXd* S_out);
+    
+    void UpdateState(VectorXd z, VectorXd z_pred, MatrixXd S, MatrixXd Zsig);
+    
+    double CalculateNIS(VectorXd z, VectorXd z_pred, MatrixXd S);
+    
+    
 };
 
 #endif /* UKF_H */
